@@ -38,7 +38,7 @@ function Block({ type }: { type: BlockType }) {
     past: "bg-neutral-800",
     // wasted: "border-2 border-neutral-600 relative overflow-hidden",
     wasted: "bg-neutral-400/70",
-    current: "bg-yellow-400",
+    current: "bg-yellow-400 shadow-[0_0_5px] shadow-yellow-500",
     future: "bg-neutral-200/50",
   };
 

@@ -12,7 +12,7 @@ export default function Header() {
   const currentDay = getCurrnetDay();
 
   return (
-    <div>
+    <div className="border-b">
       <div className="px-3 py-2 md:py-4 md:px-8 flex items-center justify-between mx-auto gap-x-3 sm:gap-x-6">
         <div className="flex gap-x-3 sm:gap-x-6 items-center">
           <p className="sm:text-lg font-mono text-nowrap">
