@@ -4,6 +4,7 @@ interface TodoItem {
   content: string;
   listId: string;
   isFinished: boolean;
+  finishedAt: number | null;
 }
 
 interface TodoList {

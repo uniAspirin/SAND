@@ -13,65 +13,7 @@ export const useTodoStore = create<TodoState>()(
           position: 1767241298345,
         },
       ],
-      items: [
-        {
-          id: "lfhvnrr",
-          position: 1767241299777,
-          content: "新建列表：点击右上角按钮开始。",
-          listId: "1767241298345",
-          isFinished: false,
-        },
-        {
-          id: "ueovqut",
-          position: 1767241299777,
-          content: "快速添加：输入任务并按 Enter。",
-          listId: "1767241298345",
-          isFinished: false,
-        },
-        {
-          id: "eiwi67m",
-          position: 1767241299777,
-          content: "完成任务：点击左侧圆圈标记已完成。",
-          listId: "1767241298345",
-          isFinished: false,
-        },
-        {
-          id: "mtg8czr",
-          position: 1767241299777,
-          content: "灵活排序：自由拖拽任务调整优先级。",
-          listId: "1767241298345",
-          isFinished: false,
-        },
-        {
-          id: "2k8nljr",
-          position: 1767241299777,
-          content: "快速删除：将任务拖到屏幕底部即可删除。",
-          listId: "1767241298345",
-          isFinished: false,
-        },
-        {
-          id: "wui3yv9",
-          position: 1767241299777,
-          content: "批量创建：支持一次粘贴多行文字（格式：一行一个任务）。",
-          listId: "1767241298345",
-          isFinished: false,
-        },
-        {
-          id: "ofi2gkc",
-          position: 1767241299777,
-          content: "一键导出：点击右上角复制图标，即可将纯文本复制到剪切板",
-          listId: "1767241298345",
-          isFinished: false,
-        },
-        {
-          id: "juns732",
-          position: 1767241299777,
-          content:
-            "⚠️ 旧版用户注意：若拖拽失效，请利用特性 6 和 7 重新创建列表，并删除旧列表即可恢复正常。",
-          listId: "1767241298345",
-          isFinished: false,
-        },
-      ],
+      items: [],
 
       addList(name) {
         set((state) => ({
@@ -113,6 +55,7 @@ export const useTodoStore = create<TodoState>()(
               content,
               listId,
               isFinished: false,
+              finishedAt: null,
             },
           ],
         }));
@@ -190,6 +133,7 @@ export const useTodoStore = create<TodoState>()(
                   ? {
                       ...item,
                       isFinished: !item.isFinished,
+                      finishedAt: null,
                     }
                   : item,
               ),
@@ -205,6 +149,7 @@ export const useTodoStore = create<TodoState>()(
               ? {
                   ...item,
                   isFinished: !item.isFinished,
+                  finishedAt: Date.now(),
                   position: newPosition,
                 }
               : item,
@@ -215,7 +160,7 @@ export const useTodoStore = create<TodoState>()(
             .every((item) => item.isFinished);
           if (allFinished) {
             toast("Good Job!!!!!!", {
-              icon: "👏",
+              icon: "👏👏👏",
             });
           }
           return { items: newItems };
