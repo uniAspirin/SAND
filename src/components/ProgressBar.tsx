@@ -16,20 +16,6 @@ export default function ProgressBar({ value, max }: ProgressBarProps) {
 
   return (
     <div className="flex gap-1 flex-wrap">
-      <Block type="past" />
-      <Block type="past" />
-      <Block type="past" />
-      <Block type="wasted" />
-      <Block type="wasted" />
-      <Block type="past" />
-      <Block type="wasted" />
-      <Block type="wasted" />
-      <Block type="past" />
-      <Block type="past" />
-      <Block type="past" />
-      <Block type="wasted" />
-      <Block type="wasted" />
-
       {Array.from({ length: max }).map((_, index) => {
         const day = index + 1;
         let type: "past" | "wasted" | "current" | "future";
