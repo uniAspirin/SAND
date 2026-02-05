@@ -121,3 +121,10 @@
     @apply bg-background text-foreground;
   }
 }
+
+html,
+body {
+  /* 1. 锁定视口高度，禁止 body 的原生滚动条 */
+  height: 100%;
+  overflow: hidden;
+}
