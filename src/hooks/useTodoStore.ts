@@ -11,6 +11,7 @@ export const useTodoStore = create<TodoState>()(
           id: "1767241298345",
           listName: "Hello there 😉",
           position: 1767241298345,
+          showFinished: true,
         },
       ],
       items: [],
@@ -23,6 +24,7 @@ export const useTodoStore = create<TodoState>()(
               id: Date.now().toString(),
               listName: name,
               position: Date.now(),
+              showFinished: true,
             },
           ],
         }));
@@ -42,6 +44,16 @@ export const useTodoStore = create<TodoState>()(
         set((state) => ({
           lists: state.lists.filter((list) => list.id !== listId),
           items: state.items.filter((item) => item.listId !== listId),
+        }));
+      },
+
+      toggleShowFinished(listId) {
+        set((state) => ({
+          lists: state.lists.map((list) => {
+            if (list.id === listId)
+              return { ...list, showFinished: !list.showFinished };
+            else return list;
+          }),
         }));
       },
 
@@ -219,6 +231,29 @@ export const useTodoStore = create<TodoState>()(
       },
     }),
 
-    { name: "todo-storage", storage: createJSONStorage(() => localStorage) },
+    {
+      name: "todo-storage",
+      storage: createJSONStorage(() => localStorage),
+      version: 2,
+      migrate: (persistedState) => {
+        const state = persistedState as {
+          lists?: Array<{
+            id: string;
+            position: number;
+            listName: string;
+            showFinished?: boolean;
+          }>;
+          items?: unknown[];
+        };
+
+        return {
+          ...state,
+          lists: (state.lists ?? []).map((list) => ({
+            ...list,
+            showFinished: list.showFinished ?? true,
+          })),
+        };
+      },
+    },
   ),
 );

@@ -12,11 +12,15 @@ import {
 import TodoListDragHandle from "./TodoListDragHandle";
 import { CSS } from "@dnd-kit/utilities";
 import ProgressCircle from "./ProgressCircle";
+import EyeButton from "./EyeButton";
 
 export default function TodoList({ list }: { list: TodoList }) {
   const { listName, id: listId, position } = list;
   const items = useTodoStore((state) => state.items);
-  const sortedListItems = items
+  const showedItems = list.showFinished
+    ? items
+    : items.filter((item) => !item.isFinished);
+  const sortedListItems = showedItems
     .filter((item) => item.listId === listId)
     .sort((a, b) => {
       return a.position - b.position;
@@ -54,8 +58,9 @@ export default function TodoList({ list }: { list: TodoList }) {
           value={listName}
           onChange={(e) => editListName({ name: e.target.value, listId })}
         />
-        <div className="flex gap-4">
+        <div className="flex gap-3">
           <ProgressCircle todoItems={sortedListItems} size={24} />
+          <EyeButton todoList={list} />
           <CopyListButton listItems={sortedListItems} />
           {/* <RemoveListButton listId={listId} /> */}
         </div>

@@ -27,7 +27,7 @@ export default function CopyListButton({ listItems }: CopyListButtonProps) {
       onClick={handleCopy}
       title="Copy as plain text"
     >
-      <Share size={20} className="text-neutral-500" />
+      <Share size={18} className="text-neutral-500" />
     </button>
   );
 }

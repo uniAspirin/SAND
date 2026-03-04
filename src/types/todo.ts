@@ -11,6 +11,7 @@ interface TodoList {
   id: string;
   position: number;
   listName: string;
+  showFinished: boolean;
 }
 
 interface TodoState {
@@ -20,6 +21,7 @@ interface TodoState {
   addList: (name: string) => void;
   editListName: (params: { name: string; listId: string }) => void;
   removeList: (listId: string) => void;
+  toggleShowFinished: (listId: string) => void;
 
   addItem: (params: { content: string; listId: string }) => void;
   editItemContent: (params: { content: string; itemId: string }) => void;
