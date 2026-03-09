@@ -6,11 +6,14 @@ import { useEffect, useState } from "react";
 export default function TodoItemDragHandle({
   listeners,
   itemId,
+  isUrgent,
 }: {
   listeners: SyntheticListenerMap | undefined;
   itemId: string;
+  isUrgent: boolean;
 }) {
   const removeItem = useTodoStore((state) => state.removeItem);
+  const toggleItemUrgent = useTodoStore((state) => state.toggleItemUrgent);
   const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
@@ -55,6 +58,15 @@ export default function TodoItemDragHandle({
           }}
           onClick={(e) => e.stopPropagation()}
         >
+          <button
+            className="w-full rounded-sm px-2 py-1 text-left text-sm hover:bg-neutral-100 font-mono"
+            onClick={() => {
+              toggleItemUrgent(itemId);
+              setMenuPos(null);
+            }}
+          >
+            {isUrgent ? "Unmark urgent" : "Mark as urgent"}
+          </button>
           <button
             className="w-full rounded-sm px-2 py-1 text-left text-sm text-red-600 hover:bg-red-50 font-mono"
             onClick={() => {

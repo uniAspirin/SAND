@@ -23,6 +23,7 @@ export default function TodoList({ list }: { list: TodoList }) {
   const sortedListItems = showedItems
     .filter((item) => item.listId === listId)
     .sort((a, b) => {
+      if (a.isUrgent !== b.isUrgent) return Number(b.isUrgent) - Number(a.isUrgent);
       return a.position - b.position;
     });
 

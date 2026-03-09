@@ -4,6 +4,7 @@ interface TodoItem {
   content: string;
   listId: string;
   isFinished: boolean;
+  isUrgent: boolean;
   finishedAt: number | null;
 }
 
@@ -41,6 +42,7 @@ interface TodoState {
   addItem: (params: { content: string; listId: string }) => void;
   editItemContent: (params: { content: string; itemId: string }) => void;
   toggleIsFinished: (itemId: string) => void;
+  toggleItemUrgent: (itemId: string) => void;
   changeItemOrder: (params: {
     activeId: string;
     overId: string;

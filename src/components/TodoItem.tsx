@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import TodoItemDragHandle from "./TodoItemDragHandle";
 
 export default function TodoItem({ todoItem }: { todoItem: TodoItem }) {
-  const { id, content, isFinished, listId, position } = todoItem;
+  const { id, content, isFinished, isUrgent, listId, position } = todoItem;
   const toggleIsFinished = useTodoStore((state) => state.toggleIsFinished);
   const editItemContent = useTodoStore((state) => state.editItemContent);
 
@@ -62,7 +62,9 @@ export default function TodoItem({ todoItem }: { todoItem: TodoItem }) {
 
   return (
     <div
-      className="flex items-start w-full"
+      className={`flex items-start w-full rounded-md ${
+        isUrgent ? "bg-red-100/80 px-1.5 py-1" : ""
+      }`}
       ref={setNodeRef}
       style={style}
       {...attributes}
@@ -84,7 +86,7 @@ export default function TodoItem({ todoItem }: { todoItem: TodoItem }) {
           isFinished ? "text-neutral-600" : ""
         }`}
       />
-      <TodoItemDragHandle listeners={listeners} itemId={id} />
+      <TodoItemDragHandle listeners={listeners} itemId={id} isUrgent={isUrgent} />
     </div>
   );
 }

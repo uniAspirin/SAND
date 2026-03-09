@@ -153,6 +153,7 @@ export const useTodoStore = create<TodoState>()(
               content,
               listId,
               isFinished: false,
+              isUrgent: false,
               finishedAt: null,
             },
           ],
@@ -171,7 +172,10 @@ export const useTodoStore = create<TodoState>()(
         set((state) => {
           const sortedItems = state.items
             .filter((i) => i.listId === targetListId)
-            .sort((a, b) => a.position - b.position);
+            .sort((a, b) => {
+              if (a.isUrgent !== b.isUrgent) return Number(b.isUrgent) - Number(a.isUrgent);
+              return a.position - b.position;
+            });
 
           let calculatedPosition: number;
 
@@ -265,6 +269,31 @@ export const useTodoStore = create<TodoState>()(
         });
       },
 
+      toggleItemUrgent(itemId) {
+        set((state) => {
+          const currentItem = state.items.find((item) => item.id === itemId);
+          if (!currentItem) return state;
+
+          const isTurningUrgent = !currentItem.isUrgent;
+          const listItems = state.items
+            .filter((item) => item.listId === currentItem.listId)
+            .sort((a, b) => a.position - b.position);
+          const minPosition = listItems.length > 0 ? listItems[0].position : Date.now();
+
+          return {
+            items: state.items.map((item) =>
+              item.id === itemId
+                ? {
+                    ...item,
+                    isUrgent: isTurningUrgent,
+                    position: isTurningUrgent ? minPosition / 2 : item.position,
+                  }
+                : item,
+            ),
+          };
+        });
+      },
+
       removeItem(itemId) {
         set((state) => ({
           items: state.items.filter((item) => item.id !== itemId),
@@ -320,7 +349,7 @@ export const useTodoStore = create<TodoState>()(
     {
       name: "todo-storage",
       storage: createJSONStorage(() => localStorage),
-      version: 3,
+      version: 4,
       migrate: (persistedState) => {
         const state = persistedState as {
           projects?: Array<{
@@ -337,7 +366,15 @@ export const useTodoStore = create<TodoState>()(
             showFinished?: boolean;
             projectId?: string | null;
           }>;
-          items?: unknown[];
+          items?: Array<{
+            id: string;
+            position: number;
+            content: string;
+            listId: string;
+            isFinished: boolean;
+            isUrgent?: boolean;
+            finishedAt: number | null;
+          }>;
         };
 
         const projects =
@@ -383,6 +420,10 @@ export const useTodoStore = create<TodoState>()(
             ...list,
             showFinished: list.showFinished ?? true,
             projectId: list.projectId ?? null,
+          })),
+          items: (state.items ?? []).map((item) => ({
+            ...item,
+            isUrgent: item.isUrgent ?? false,
           })),
         };
       },
