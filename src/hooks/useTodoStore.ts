@@ -3,20 +3,33 @@ import type { TodoState } from "../types/todo";
 import { persist, createJSONStorage } from "zustand/middleware";
 import toast from "react-hot-toast";
 
+const ALL_PROJECT_ID = "all";
+
 export const useTodoStore = create<TodoState>()(
   persist(
     (set) => ({
+      projects: [
+        {
+          id: ALL_PROJECT_ID,
+          position: 0,
+          name: "All",
+          isSystem: true,
+        },
+      ],
+      activeProjectId: ALL_PROJECT_ID,
       lists: [
         {
           id: "1767241298345",
           listName: "Hello there 😉",
           position: 1767241298345,
           showFinished: true,
+          projectId: null,
         },
       ],
       items: [],
 
-      addList(name) {
+      addList({ name, projectId }) {
+        const nextProjectId = projectId === ALL_PROJECT_ID ? null : projectId;
         set((state) => ({
           lists: [
             ...state.lists,
@@ -25,6 +38,7 @@ export const useTodoStore = create<TodoState>()(
               listName: name,
               position: Date.now(),
               showFinished: true,
+              projectId: nextProjectId,
             },
           ],
         }));
@@ -49,12 +63,84 @@ export const useTodoStore = create<TodoState>()(
 
       toggleShowFinished(listId) {
         set((state) => ({
-          lists: state.lists.map((list) => {
-            if (list.id === listId)
-              return { ...list, showFinished: !list.showFinished };
-            else return list;
-          }),
+          lists: state.lists.map((list) =>
+            list.id === listId
+              ? { ...list, showFinished: !list.showFinished }
+              : list,
+          ),
         }));
+      },
+
+      addProject(name) {
+        set((state) => ({
+          projects: [
+            ...state.projects,
+            {
+              id: Date.now().toString(),
+              position: Date.now(),
+              name,
+              isSystem: false,
+            },
+          ],
+        }));
+      },
+
+      editProjectName({ name, projectId }) {
+        set((state) => ({
+          projects: state.projects.map((project) =>
+            project.id === projectId && !project.isSystem
+              ? { ...project, name }
+              : project,
+          ),
+        }));
+      },
+
+      removeProject(projectId) {
+        if (projectId === ALL_PROJECT_ID) return;
+        set((state) => ({
+          projects: state.projects.filter((project) => project.id !== projectId),
+          lists: state.lists.map((list) =>
+            list.projectId === projectId ? { ...list, projectId: null } : list,
+          ),
+          activeProjectId:
+            state.activeProjectId === projectId
+              ? ALL_PROJECT_ID
+              : state.activeProjectId,
+        }));
+      },
+
+      setActiveProjectId(projectId) {
+        set((state) => ({
+          activeProjectId: state.projects.some(
+            (project) => project.id === projectId,
+          )
+            ? projectId
+            : ALL_PROJECT_ID,
+        }));
+      },
+
+      moveListToProject({ listId, projectId }) {
+        set((state) => {
+          const targetList = state.lists.find((list) => list.id === listId);
+          if (!targetList) return state;
+
+          const nextProjectId = projectId === ALL_PROJECT_ID ? null : projectId;
+          if (targetList.projectId === nextProjectId) return state;
+
+          const targetProjectName =
+            projectId === ALL_PROJECT_ID
+              ? "All"
+              : state.projects.find((project) => project.id === projectId)?.name;
+          if (!targetProjectName) return state;
+
+          toast.success(`Moved to ${targetProjectName}`);
+
+          return {
+            lists: state.lists.map((list) =>
+              list.id === listId ? { ...list, projectId: nextProjectId } : list,
+            ),
+          };
+        });
       },
 
       addItem({ content, listId }) {
@@ -234,23 +320,69 @@ export const useTodoStore = create<TodoState>()(
     {
       name: "todo-storage",
       storage: createJSONStorage(() => localStorage),
-      version: 2,
+      version: 3,
       migrate: (persistedState) => {
         const state = persistedState as {
+          projects?: Array<{
+            id: string;
+            position: number;
+            name: string;
+            isSystem?: boolean;
+          }>;
+          activeProjectId?: string;
           lists?: Array<{
             id: string;
             position: number;
             listName: string;
             showFinished?: boolean;
+            projectId?: string | null;
           }>;
           items?: unknown[];
         };
 
+        const projects =
+          state.projects && state.projects.length > 0
+            ? state.projects.map((project) => ({
+                ...project,
+                isSystem: project.id === ALL_PROJECT_ID ? true : false,
+              }))
+            : [
+                {
+                  id: ALL_PROJECT_ID,
+                  position: 0,
+                  name: "All",
+                  isSystem: true,
+                },
+              ];
+        const hasAllProject = projects.some(
+          (project) => project.id === ALL_PROJECT_ID,
+        );
+        const normalizedProjects = hasAllProject
+          ? projects
+          : [
+              {
+                id: ALL_PROJECT_ID,
+                position: 0,
+                name: "All",
+                isSystem: true,
+              },
+              ...projects,
+            ];
+
         return {
           ...state,
+          projects: normalizedProjects,
+          activeProjectId:
+            state.activeProjectId &&
+            normalizedProjects.some(
+              (project) => project.id === state.activeProjectId,
+            )
+              ? state.activeProjectId
+              : ALL_PROJECT_ID,
           lists: (state.lists ?? []).map((list) => ({
             ...list,
             showFinished: list.showFinished ?? true,
+            projectId: list.projectId ?? null,
           })),
         };
       },

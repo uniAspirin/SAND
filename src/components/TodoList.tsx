@@ -51,7 +51,7 @@ export default function TodoList({ list }: { list: TodoList }) {
       {...attributes}
       className={isOver ? overStyle : style}
     >
-      <TodoListDragHandle listeners={listeners} />
+      <TodoListDragHandle listeners={listeners} listId={listId} />
       <div className="flex items-center justify-between w-full mb-2">
         <input
           className="font-semibold text-2xl outline-none min-w-40 relative"

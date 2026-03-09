@@ -84,7 +84,7 @@ export default function TodoItem({ todoItem }: { todoItem: TodoItem }) {
           isFinished ? "text-neutral-600" : ""
         }`}
       />
-      <TodoItemDragHandle listeners={listeners} />
+      <TodoItemDragHandle listeners={listeners} itemId={id} />
     </div>
   );
 }

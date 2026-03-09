@@ -5,6 +5,7 @@ import {
   TouchSensor,
   useSensor,
   useSensors,
+  type DragCancelEvent,
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
@@ -12,15 +13,16 @@ import Header from "./components/Header";
 import TodoList from "./components/TodoList";
 import TodoListOverlay from "./components/TodoListOverlay";
 import { useTodoStore } from "./hooks/useTodoStore";
-import DeleteArea from "./components/DeleteArea";
 import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import TodoItem from "./components/TodoItem";
 import { rectSortingStrategy, SortableContext } from "@dnd-kit/sortable";
+import ProjectBar from "./components/ProjectBar";
 
 function App() {
   const items = useTodoStore((state) => state.items);
   const lists = useTodoStore((state) => state.lists);
+  const activeProjectId = useTodoStore((state) => state.activeProjectId);
   const removeItem = useTodoStore((state) => state.removeItem);
   const removeList = useTodoStore((state) => state.removeList);
   const changeItemOrder = useTodoStore((state) => state.changeItemOrder);
@@ -44,42 +46,53 @@ function App() {
 
     // base on role
     const { active, over } = e;
+    const activeRole = active.data.current?.role;
+    const overRole = over?.data.current?.role;
     // 1. same place, return
     if (!over) return;
     // 2. delete area, delete it
     if (over.id === "delete") {
-      if (active.data.current?.role === "item") {
+      if (activeRole === "item") {
         removeItem(active.id as string);
-      } else if (active.data.current?.role === "list") {
+      } else if (activeRole === "list") {
         removeList(active.id as string);
       }
-    }
-    const overData = over?.data.current;
-    // disable: drag over an item in another list
-    if (
-      active.data.current?.listId !== over.data.current?.listId &&
-      over.data.current?.role === "item"
-    ) {
       return;
     }
-    // move list to another list
-    if (
-      over.data.current?.role === "list" &&
-      over.data.current?.role === "list"
-    ) {
+
+    if (activeRole === "list" && overRole === "list") {
       changeListOrder({
         activeId: active.id as string,
         overId: over.id as string,
       });
+      return;
+    }
+
+    if (activeRole !== "item") return;
+
+    const overData = over?.data.current;
+    // disable: drag over an item in another list
+    if (
+      active.data.current?.listId !== over.data.current?.listId &&
+      overRole === "item"
+    ) {
+      return;
     }
 
     // 3. handle item order change
     const targetListId = overData?.listId;
+    if (!targetListId) return;
     changeItemOrder({
       activeId: active.id as string,
       overId: over.id as string,
       targetListId,
     });
+  }
+
+  function handleDragCancel(_: DragCancelEvent) {
+    setIsDragging(false);
+    setActiveId("");
+    setActiveRole("");
   }
 
   function handleOverlay() {
@@ -111,16 +124,28 @@ function App() {
 
   if (lists.length === 0) toast("add a new list first :)");
 
+  const visibleLists =
+    activeProjectId === "all"
+      ? lists
+      : lists.filter((list) => list.projectId === activeProjectId);
+  const sortedVisibleLists = [...visibleLists].sort(
+    (a, b) => a.position - b.position,
+  );
+
   return (
     <DndContext
       sensors={sensors}
+      autoScroll={activeRole !== "list"}
       // collisionDetection={closestCenter}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
     >
       <div className="h-dvh flex flex-col">
         <Header />
-        <div className="grow bg-neutral-100 overflow-y-scroll">
+        <div
+          className={`grow bg-neutral-100 ${isDragging && activeRole === "list" ? "overflow-hidden" : "overflow-y-scroll"}`}
+        >
           <main
             className="min-h-full flex flex-col items-center px-1.5 py-3 gap-4 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:p-6 mx-auto"
             style={{
@@ -132,16 +157,18 @@ function App() {
               gridAutoColumns: "350px",
             }}
           >
-            <SortableContext items={lists} strategy={rectSortingStrategy}>
-              {lists
-                .sort((a, b) => a.position - b.position)
-                .map((list) => (
-                  <TodoList key={list.id} list={list} />
-                ))}
+            <SortableContext
+              items={sortedVisibleLists}
+              strategy={rectSortingStrategy}
+            >
+              {sortedVisibleLists.map((list) => (
+                <TodoList key={list.id} list={list} />
+              ))}
             </SortableContext>
-            {isDragging && <DeleteArea />}
+            {/* {isDragging && <DeleteArea />} */}
           </main>
         </div>
+        <ProjectBar />
       </div>
       <DragOverlay>{handleOverlay()}</DragOverlay>
       <Toaster />
