@@ -62,7 +62,7 @@ export default function ProjectBar() {
   }
 
   return (
-    <div className="border-t bg-white px-3 py-2 md:py-4 md:px-8 font-mono text-xs sm:text-base flex justify-between">
+    <div className="border-t bg-white px-3 py-2 md:px-8 font-mono text-xs sm:text-base flex justify-between">
       <div className="flex items-center gap-2 overflow-x-auto">
         {sortedProjects.map((project) => {
           const isActive = activeProjectId === project.id;
@@ -70,7 +70,7 @@ export default function ProjectBar() {
             "flex items-center gap-2 rounded-md px-3 py-1.5 transition-all duration-200 cursor-pointer font-semibold";
           const activeStyle = isActive
             ? "bg-yellow-400 text-white"
-            : "bg-white text-neutral-600";
+            : "bg-white";
 
           if (project.isSystem) {
             return (
@@ -121,9 +121,9 @@ export default function ProjectBar() {
           );
         })}
       </div>
-      <div className="ml-auto flex items-center rounded-md px-2 py-1.5 shrink-0">
+      <div className="ml-auto flex items-center rounded-md shrink-0">
         <input
-          className="w-25 pl-1 outline-none text-neutral-500 text-sm"
+          className="w-20 p-1.5 pl-3 rounded outline-none text-neutral-500 text-xs sm:text-sm focus:bg-neutral-100 focus:w-50 transition-all duration-150"
           placeholder="New project"
           value={projectName}
           onChange={(e) => setProjectName(e.target.value)}
@@ -137,7 +137,7 @@ export default function ProjectBar() {
           onClick={handleCreateProject}
           title="Add project"
         >
-          <Plus size={20} />
+          <Plus size={24} />
         </button>
       </div>
 
@@ -152,7 +152,7 @@ export default function ProjectBar() {
           onClick={(e) => e.stopPropagation()}
         >
           <button
-            className="w-full rounded-sm px-2 py-1 text-left text-sm hover:bg-neutral-100"
+            className="w-full rounded-sm px-2 py-1 text-left text-xs hover:bg-neutral-100"
             onClick={() => {
               handleRenameProject(menuState.projectId);
               setMenuState(null);
@@ -161,7 +161,7 @@ export default function ProjectBar() {
             Rename
           </button>
           <button
-            className="w-full rounded-sm px-2 py-1 text-left text-sm text-red-600 hover:bg-red-50"
+            className="w-full rounded-sm px-2 py-1 text-left text-xs text-red-600 hover:bg-red-50"
             onClick={() => {
               removeProject(menuState.projectId);
               if (editingProjectId === menuState.projectId) {

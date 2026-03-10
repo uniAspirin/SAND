@@ -349,8 +349,9 @@ export const useTodoStore = create<TodoState>()(
     {
       name: "todo-storage",
       storage: createJSONStorage(() => localStorage),
-      version: 4,
+      version: 5,
       migrate: (persistedState) => {
+        const migrationNow = Date.now();
         const state = persistedState as {
           projects?: Array<{
             id: string;
@@ -373,7 +374,7 @@ export const useTodoStore = create<TodoState>()(
             listId: string;
             isFinished: boolean;
             isUrgent?: boolean;
-            finishedAt: number | null;
+            finishedAt?: number | null;
           }>;
         };
 
@@ -421,9 +422,14 @@ export const useTodoStore = create<TodoState>()(
             showFinished: list.showFinished ?? true,
             projectId: list.projectId ?? null,
           })),
-          items: (state.items ?? []).map((item) => ({
+          items: (state.items ?? []).map((item, index) => ({
             ...item,
             isUrgent: item.isUrgent ?? false,
+            // Data cleanup: backfill missing finishedAt for finished items to "today".
+            finishedAt:
+              item.isFinished && (item.finishedAt === null || item.finishedAt === undefined)
+                ? migrationNow + index
+                : (item.finishedAt ?? null),
           })),
         };
       },

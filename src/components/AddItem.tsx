@@ -47,7 +47,7 @@ export default function AddItem({ listId }: { listId: string }) {
         onChange={(e) => setContent(e.target.value)}
       /> */}
       <textarea
-        className="w-full bg-transparent border-b border-dashed border-neutral-300 text-neutral-400 outline-none px-1 py-0.5 resize-none overflow-hidden placeholder:text-neutral-300 h-[29px] min-h-[29px] leading-[20px]"
+        className="w-full bg-transparent border-b border-dashed border-neutral-300 text-neutral-400 outline-none px-1 py-0.5 resize-none text-sm overflow-hidden placeholder:text-neutral-300 h-[26px] min-h-[26px] leading-[20px]"
         placeholder="new todo"
         onKeyDown={handleKeyDown}
         value={content}

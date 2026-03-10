@@ -12,7 +12,7 @@ export default function EyeButton({ todoList }: EyeButtonProps) {
     <button
       className="hover:bg-neutral-100 rounded-sm p-0.5 cursor-pointer transition-all duration-200"
       onClick={() => toggleShowFinished(todoList.id)}
-      title="Copy as plain text"
+      title="Toggle display for finished items"
     >
       {todoList.showFinished ? (
         <Eye size={20} className="text-neutral-500" />

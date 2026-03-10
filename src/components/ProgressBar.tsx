@@ -1,4 +1,5 @@
 import { useTodoStore } from "@/hooks/useTodoStore";
+import { useEffect, useRef, useState } from "react";
 
 interface ProgressBarProps {
   value: number;
@@ -8,18 +9,34 @@ interface ProgressBarProps {
 }
 type BlockType = "past" | "wasted" | "current" | "future";
 
-export default function ProgressBar({ value, max, year, month }: ProgressBarProps) {
+export default function ProgressBar({
+  value,
+  max,
+  year,
+  month,
+}: ProgressBarProps) {
   const items = useTodoStore((state) => state.items);
   const now = new Date();
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth();
 
-  const finishedItemsByDay = new Map<number, { id: string; content: string; finishedAt: number }[]>();
+  const finishedItemsByDay = new Map<
+    number,
+    { id: string; content: string; finishedAt: number }[]
+  >();
   const finishedDays = new Set<number>();
   items
-    .filter((item) => item.isFinished && item.finishedAt)
+    .filter((item) => item.isFinished)
     .forEach((item) => {
-      const finishedDate = new Date(item.finishedAt!);
+      const inferredFinishedAt =
+        typeof item.finishedAt === "number"
+          ? item.finishedAt
+          : item.position > 1_000_000_000_000
+            ? item.position
+            : null;
+      if (!inferredFinishedAt) return;
+
+      const finishedDate = new Date(inferredFinishedAt);
       if (
         finishedDate.getFullYear() !== year ||
         finishedDate.getMonth() !== month
@@ -31,13 +48,13 @@ export default function ProgressBar({ value, max, year, month }: ProgressBarProp
       dayItems.push({
         id: item.id,
         content: item.content,
-        finishedAt: item.finishedAt!,
+        finishedAt: inferredFinishedAt,
       });
       finishedItemsByDay.set(day, dayItems);
       finishedDays.add(day);
     });
   finishedItemsByDay.forEach((dayItems) => {
-    dayItems.sort((a, b) => a.finishedAt - b.finishedAt);
+    dayItems.sort((a, b) => b.finishedAt - a.finishedAt);
   });
 
   return (
@@ -91,18 +108,49 @@ function Block({
     current: "bg-[#bc012c] shadow-[0_0_4px] shadow-[#bc012c]",
     future: "bg-neutral-200/50",
   };
+  const [isOpen, setIsOpen] = useState(false);
+  const closeTimerRef = useRef<number | null>(null);
+  const canShowMenu =
+    (type === "past" || type === "current") && finishedItems.length > 0;
+
+  function openMenu() {
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+    setIsOpen(true);
+  }
+
+  function closeMenuWithDelay() {
+    closeTimerRef.current = window.setTimeout(() => {
+      setIsOpen(false);
+      closeTimerRef.current = null;
+    }, 100);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current !== null) {
+        window.clearTimeout(closeTimerRef.current);
+      }
+    };
+  }, []);
 
   return (
-    <div className="relative group">
+    <div
+      className="relative"
+      onMouseEnter={openMenu}
+      onMouseLeave={closeMenuWithDelay}
+    >
       <div
         className={`${colors[type]} size-3 sm:size-4 rounded-xs flex items-center justify-center`}
       />
-      {(type === "past" || type === "current") && finishedItems.length > 0 && (
-        <div className="hidden group-hover:block absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 w-64 rounded-md border border-neutral-200 bg-white p-2 shadow-lg">
+      {canShowMenu && isOpen && (
+        <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 w-64 rounded-md border border-neutral-200 bg-white p-2 shadow-lg">
           <p className="text-xs font-semibold text-neutral-700 mb-1">
-            Day {day}
+            Day {day} ({finishedItems.length})
           </p>
-          <div className="max-h-40 overflow-y-auto space-y-1">
+          <div className="max-h-72 overflow-y-auto space-y-1">
             {finishedItems.map((item) => (
               <div key={item.id} className="rounded-sm bg-neutral-50 px-2 py-1">
                 <p className="text-[11px] text-neutral-500">
@@ -113,7 +161,9 @@ function Block({
                     minute: "2-digit",
                   })}
                 </p>
-                <p className="text-xs text-neutral-700 break-words">{item.content}</p>
+                <p className="text-xs text-neutral-700 wrap-break-word">
+                  {item.content}
+                </p>
               </div>
             ))}
           </div>

@@ -14,11 +14,12 @@ export default function TodoItem({ todoItem }: { todoItem: TodoItem }) {
   const [localContent, setLocalContent] = useState(content);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   const adjustHeight = () => {
     const target = textareaRef.current;
     if (target) {
-      target.style.height = "29px";
-      const newHeight = Math.max(target.scrollHeight, 29);
+      target.style.height = "26px";
+      const newHeight = Math.max(target.scrollHeight, 26);
       target.style.height = `${newHeight}px`;
     }
   };
@@ -43,7 +44,7 @@ export default function TodoItem({ todoItem }: { todoItem: TodoItem }) {
     if (localContent === content) return;
     const timer = setTimeout(() => {
       editItemContent({ content: localContent.trim(), itemId: id });
-    }, 800);
+    }, 1500);
     return () => clearTimeout(timer);
   }, [localContent, id, editItemContent, content]);
 
@@ -63,7 +64,7 @@ export default function TodoItem({ todoItem }: { todoItem: TodoItem }) {
   return (
     <div
       className={`flex items-start w-full rounded-md ${
-        isUrgent ? "bg-red-100/80 px-1.5 py-1" : ""
+        isUrgent ? "bg-yellow-200/60" : ""
       }`}
       ref={setNodeRef}
       style={style}
@@ -82,11 +83,15 @@ export default function TodoItem({ todoItem }: { todoItem: TodoItem }) {
         ref={textareaRef}
         value={localContent}
         onChange={(e) => setLocalContent(e.target.value)}
-        className={`grow border-b w-full border-neutral-300 outline-none px-1 py-0.5 resize-none overflow-hidden ${
+        className={`grow border-b w-full border-neutral-300 outline-none px-1 py-0.5 resize-none overflow-hidden text-sm ${
           isFinished ? "text-neutral-600" : ""
         }`}
       />
-      <TodoItemDragHandle listeners={listeners} itemId={id} isUrgent={isUrgent} />
+      <TodoItemDragHandle
+        listeners={listeners}
+        itemId={id}
+        isUrgent={isUrgent}
+      />
     </div>
   );
 }

@@ -57,9 +57,9 @@ export default function Header() {
     });
   }, [currentMonth, currentYear, finishedMonthKeys]);
 
-  const monthLabel = new Intl.DateTimeFormat("en-US", { month: "short" }).format(
-    new Date(selectedYearMonth.year, selectedYearMonth.month, 1),
-  );
+  const monthLabel = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+  }).format(new Date(selectedYearMonth.year, selectedYearMonth.month, 1));
   const daysInMonth = new Date(
     selectedYearMonth.year,
     selectedYearMonth.month + 1,
@@ -90,7 +90,7 @@ export default function Header() {
 
   return (
     <div className="border-b">
-      <div className="px-3 py-2 md:py-4 md:px-8 flex items-center justify-between mx-auto gap-x-3 sm:gap-x-6">
+      <div className="px-3 py-2 md:px-8 flex items-center justify-between mx-auto gap-x-3 sm:gap-x-6">
         <div className="flex gap-x-3 sm:gap-x-6 items-center">
           <div ref={monthMenuRef} className="relative">
             <button
