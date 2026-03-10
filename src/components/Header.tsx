@@ -96,6 +96,7 @@ export default function Header() {
             <button
               className="sm:text-lg font-mono text-nowrap hover:bg-neutral-100 rounded-sm px-1 py-0.5"
               onClick={() => setIsMonthMenuOpen((prev) => !prev)}
+              title="Switch month display"
             >
               {monthLabel},
               <span className="text-xl sm:text-2xl font-semibold">

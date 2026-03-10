@@ -8,6 +8,7 @@ export default function AddListButton() {
     <button
       className="text-lg hover:bg-neutral-100 rounded-sm p-0.5 cursor-pointer transition-all duration-200"
       onClick={() => addList({ name: "New List", projectId: activeProjectId })}
+      title="Add new list"
     >
       <Plus />
     </button>
