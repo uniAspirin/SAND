@@ -124,7 +124,7 @@ export default function ProjectBar() {
       <div className="ml-auto flex items-center rounded-md shrink-0">
         <input
           className="w-20 p-1.5 pl-3 rounded outline-none text-neutral-500 text-xs sm:text-sm focus:bg-neutral-100 focus:w-50 transition-all duration-150"
-          placeholder="New project"
+          placeholder="New Project"
           value={projectName}
           onChange={(e) => setProjectName(e.target.value)}
           onKeyDown={(e) => {

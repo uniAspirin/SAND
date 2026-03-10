@@ -2,31 +2,22 @@ import { create } from "zustand";
 import type { TodoState } from "../types/todo";
 import { persist, createJSONStorage } from "zustand/middleware";
 import toast from "react-hot-toast";
+import {
+  ONBOARDING_ACTIVE_PROJECT_ID,
+  ONBOARDING_ITEMS,
+  ONBOARDING_LISTS,
+  ONBOARDING_PROJECTS,
+} from "@/data/onboarding";
 
 const ALL_PROJECT_ID = "all";
 
 export const useTodoStore = create<TodoState>()(
   persist(
     (set) => ({
-      projects: [
-        {
-          id: ALL_PROJECT_ID,
-          position: 0,
-          name: "All",
-          isSystem: true,
-        },
-      ],
-      activeProjectId: ALL_PROJECT_ID,
-      lists: [
-        {
-          id: "1767241298345",
-          listName: "Hello there 😉",
-          position: 1767241298345,
-          showFinished: true,
-          projectId: null,
-        },
-      ],
-      items: [],
+      projects: ONBOARDING_PROJECTS.map((project) => ({ ...project })),
+      activeProjectId: ONBOARDING_ACTIVE_PROJECT_ID,
+      lists: ONBOARDING_LISTS.map((list) => ({ ...list })),
+      items: ONBOARDING_ITEMS.map((item) => ({ ...item })),
 
       addList({ name, projectId }) {
         const nextProjectId = projectId === ALL_PROJECT_ID ? null : projectId;

@@ -13,21 +13,23 @@ import TodoListDragHandle from "./TodoListDragHandle";
 import { CSS } from "@dnd-kit/utilities";
 import ProgressCircle from "./ProgressCircle";
 import EyeButton from "./EyeButton";
+import { useRef } from "react";
 
 export default function TodoList({ list }: { list: TodoList }) {
   const { listName, id: listId, position } = list;
   const items = useTodoStore((state) => state.items);
-  const showedItems = list.showFinished
-    ? items
-    : items.filter((item) => !item.isFinished);
-  const sortedListItems = showedItems
+  const sortedListItems = items
     .filter((item) => item.listId === listId)
     .sort((a, b) => {
-      if (a.isUrgent !== b.isUrgent) return Number(b.isUrgent) - Number(a.isUrgent);
+      if (a.isUrgent !== b.isUrgent)
+        return Number(b.isUrgent) - Number(a.isUrgent);
       return a.position - b.position;
     });
-
+  const showedSortedListItems = list.showFinished
+    ? sortedListItems
+    : sortedListItems.filter((item) => !item.isFinished);
   const editListName = useTodoStore((state) => state.editListName);
+  const addItemInputRef = useRef<HTMLTextAreaElement>(null);
 
   const { isOver, attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
@@ -62,21 +64,29 @@ export default function TodoList({ list }: { list: TodoList }) {
         <div className="flex gap-3">
           <ProgressCircle todoItems={sortedListItems} size={24} />
           <EyeButton todoList={list} />
-          <CopyListButton listItems={sortedListItems} />
+          <CopyListButton listItems={showedSortedListItems} />
           {/* <RemoveListButton listId={listId} /> */}
         </div>
       </div>
 
       <SortableContext
-        items={sortedListItems}
+        items={showedSortedListItems}
         strategy={verticalListSortingStrategy}
       >
-        <div className="overflow-scroll w-full gap-2 flex flex-col mb-2">
-          {sortedListItems.map((item) => (
+        <div className="overflow-y-auto w-full gap-2 flex flex-col mb-2">
+          {showedSortedListItems.map((item) => (
             <TodoItem key={item.id} todoItem={item} />
           ))}
         </div>
-        <AddItem listId={listId} />
+        <AddItem listId={listId} ref={addItemInputRef} />
+        <div
+          className="grow min-h-0 w-full"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            if (e.target !== e.currentTarget) return;
+            addItemInputRef.current?.focus();
+          }}
+        ></div>
       </SortableContext>
     </div>
   );

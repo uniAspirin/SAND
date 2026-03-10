@@ -1,10 +1,15 @@
 import { Circle } from "lucide-react";
 import { useTodoStore } from "../hooks/useTodoStore";
-import { useState } from "react";
+import { forwardRef, useState } from "react";
 
-export default function AddItem({ listId }: { listId: string }) {
+const AddItem = forwardRef<HTMLTextAreaElement, {
+  listId: string;
+}> (function AddItem({
+  listId,
+}, ref) {
   const [content, setContent] = useState("");
   const addItem = useTodoStore((state) => state.addItem);
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.nativeEvent.isComposing) return;
     if (e.key === "Enter" && content.trim() && !e.shiftKey) {
@@ -47,6 +52,7 @@ export default function AddItem({ listId }: { listId: string }) {
         onChange={(e) => setContent(e.target.value)}
       /> */}
       <textarea
+        ref={ref}
         className="w-full bg-transparent border-b border-dashed border-neutral-300 text-neutral-400 outline-none px-1 py-0.5 resize-none text-sm overflow-hidden placeholder:text-neutral-300 h-[26px] min-h-[26px] leading-[20px]"
         placeholder="new todo"
         onKeyDown={handleKeyDown}
@@ -63,4 +69,6 @@ export default function AddItem({ listId }: { listId: string }) {
       />
     </div>
   );
-}
+});
+
+export default AddItem;
