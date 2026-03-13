@@ -89,7 +89,9 @@ export const useTodoStore = create<TodoState>()(
       removeProject(projectId) {
         if (projectId === ALL_PROJECT_ID) return;
         set((state) => ({
-          projects: state.projects.filter((project) => project.id !== projectId),
+          projects: state.projects.filter(
+            (project) => project.id !== projectId,
+          ),
           lists: state.lists.map((list) =>
             list.projectId === projectId ? { ...list, projectId: null } : list,
           ),
@@ -121,7 +123,8 @@ export const useTodoStore = create<TodoState>()(
           const targetProjectName =
             projectId === ALL_PROJECT_ID
               ? "All"
-              : state.projects.find((project) => project.id === projectId)?.name;
+              : state.projects.find((project) => project.id === projectId)
+                  ?.name;
           if (!targetProjectName) return state;
 
           toast.success(`Moved to ${targetProjectName}`);
@@ -164,7 +167,8 @@ export const useTodoStore = create<TodoState>()(
           const sortedItems = state.items
             .filter((i) => i.listId === targetListId)
             .sort((a, b) => {
-              if (a.isUrgent !== b.isUrgent) return Number(b.isUrgent) - Number(a.isUrgent);
+              if (a.isUrgent !== b.isUrgent)
+                return Number(b.isUrgent) - Number(a.isUrgent);
               return a.position - b.position;
             });
 
@@ -232,7 +236,7 @@ export const useTodoStore = create<TodoState>()(
               ),
             };
           }
-          // 2) false => true, move it to the top: set position to the smallest
+          // 2) false => true, move it to the top: set position to the smallest; unmark urgent if it was urgent
           const sortedItems = state.items
             .filter((item) => item.listId === currentItem?.listId)
             .sort((a, b) => a.position - b.position);
@@ -244,6 +248,7 @@ export const useTodoStore = create<TodoState>()(
                   isFinished: !item.isFinished,
                   finishedAt: Date.now(),
                   position: newPosition,
+                  isUrgent: false,
                 }
               : item,
           );
@@ -269,7 +274,8 @@ export const useTodoStore = create<TodoState>()(
           const listItems = state.items
             .filter((item) => item.listId === currentItem.listId)
             .sort((a, b) => a.position - b.position);
-          const minPosition = listItems.length > 0 ? listItems[0].position : Date.now();
+          const minPosition =
+            listItems.length > 0 ? listItems[0].position : Date.now();
 
           return {
             items: state.items.map((item) =>
@@ -418,7 +424,8 @@ export const useTodoStore = create<TodoState>()(
             isUrgent: item.isUrgent ?? false,
             // Data cleanup: backfill missing finishedAt for finished items to "today".
             finishedAt:
-              item.isFinished && (item.finishedAt === null || item.finishedAt === undefined)
+              item.isFinished &&
+              (item.finishedAt === null || item.finishedAt === undefined)
                 ? migrationNow + index
                 : (item.finishedAt ?? null),
           })),
