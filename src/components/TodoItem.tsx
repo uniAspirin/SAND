@@ -10,6 +10,7 @@ export default function TodoItem({ todoItem }: { todoItem: TodoItem }) {
   const { id, content, isFinished, isUrgent, listId, position } = todoItem;
   const toggleIsFinished = useTodoStore((state) => state.toggleIsFinished);
   const editItemContent = useTodoStore((state) => state.editItemContent);
+  const removeItem = useTodoStore((state) => state.removeItem);
 
   const [localContent, setLocalContent] = useState(content);
 
@@ -42,11 +43,14 @@ export default function TodoItem({ todoItem }: { todoItem: TodoItem }) {
   // debounce
   useEffect(() => {
     if (localContent === content) return;
+
     const timer = setTimeout(() => {
-      editItemContent({ content: localContent.trim(), itemId: id });
-    }, 1500);
+      const formattedContent = localContent.trim();
+      if (formattedContent === "") removeItem(id);
+      editItemContent({ content: formattedContent, itemId: id });
+    }, 1000);
     return () => clearTimeout(timer);
-  }, [localContent, id, editItemContent, content]);
+  }, [localContent, id, editItemContent, removeItem, content]);
 
   // when content updates, sync local content
   useEffect(() => {
