@@ -98,6 +98,7 @@ export default function ProjectBar() {
                 });
               }}
             >
+              {/* 编辑name的时候弹出的input输入框 */}
               {editingProjectId === project.id ? (
                 <input
                   autoFocus
@@ -107,6 +108,7 @@ export default function ProjectBar() {
                   onClick={(e) => e.stopPropagation()}
                   onBlur={commitProjectRename}
                   onKeyDown={(e) => {
+                    if (e.nativeEvent.isComposing) return;
                     if (e.key === "Enter") commitProjectRename();
                     if (e.key === "Escape") {
                       setEditingProjectId(null);
@@ -122,12 +124,14 @@ export default function ProjectBar() {
         })}
       </div>
       <div className="ml-auto flex items-center rounded-md shrink-0">
+        {/* 创建新的project的input */}
         <input
           className="w-20 p-1.5 pl-3 rounded outline-none text-neutral-500 text-xs sm:text-sm focus:bg-neutral-100 focus:w-50 transition-all duration-150"
           placeholder="New Project"
           value={projectName}
           onChange={(e) => setProjectName(e.target.value)}
           onKeyDown={(e) => {
+            if (e.nativeEvent.isComposing) return;
             if (e.key !== "Enter" || !projectName.trim()) return;
             handleCreateProject();
           }}
